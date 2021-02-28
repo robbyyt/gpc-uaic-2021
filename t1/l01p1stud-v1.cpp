@@ -115,17 +115,38 @@ void Display7() {
 
 void Display8() {
 	// trasare poligon convex GL_QUADS : (v0,v1,v2, ..., v_{n-1})
-	glColor3f(0.1, 0.1, 1.0);
-	glPolygonMode(GL_FRONT, GL_FILL);
-	// poligonul albastru mare, initial am incercat cu 0.5 in loc de 0.4, dar arata cam lat...
 	glBegin(GL_POLYGON);
-	glVertex2f(-0.4, 0.5);
-	glVertex2f(0.4, 0.5);
-	glVertex2f(0.7, 0.0);
-	glVertex2f(0.4, -0.5);
-	glVertex2f(-0.4, -0.5);
-	glVertex2f(-0.7, 0.0);
+	glColor3f(0.2, 0.15, 0.88);
+	glVertex2f(-0.4, 0.65);
+	glVertex2f(0.4, 0.65);
+	glVertex2f(0.75, 0.0);
+	glVertex2f(0.4, -0.65);
+	glVertex2f(-0.4, -0.65);
+	glVertex2f(-0.75, 0.0);
 	glEnd();
+	glBegin(GL_POLYGON);
+	glColor3f(1.0, 1.0, 1.0);
+	glVertex2f(-0.3, 0.4);
+	glVertex2f(0.3, 0.4);
+	glVertex2f(0.5, 0.0);
+	glVertex2f(0.3, -0.4);
+	glVertex2f(-0.3, -0.4);
+	glVertex2f(-0.5, 0.0);
+	glEnd();
+	glBegin(GL_LINE_LOOP);
+	glColor3f(1.0, 0.1, 0.1);
+	glVertex2f(-0.3, 0.4);
+	glVertex2f(0.3, 0.4);
+	glVertex2f(0.3, 0.4);
+	glVertex2f(0.5, 0.0);
+	glVertex2f(0.5, 0.0);
+	glVertex2f(0.3, -0.4);
+	glVertex2f(0.3, -0.4);
+	glVertex2f(-0.3, -0.4);
+	glVertex2f(-0.3, -0.4);
+	glVertex2f(-0.5, 0.0);
+	glEnd();
+
 }
 
 void Init(void) {
