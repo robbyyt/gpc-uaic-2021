@@ -107,11 +107,11 @@ float distance(float x) {
     return d;
 
 }
-
+//f(x) = 1 if x = 0 else d(x) / x
 void Display3() {
-    double pi = 4 * atan(1.0);
     double xmax = 30;
     double ymax = 1.0;
+	// la sugestia domnului profesor, intre 1 si 5%
     double ratia = 0.01;
 
     // afisarea punctelor propriu-zise precedata de scalare
@@ -120,7 +120,12 @@ void Display3() {
     for (double x = 0; x < xmax; x += ratia) {
         double x1, y1;
         x1 = x/xmax;
-        y1 = (fabs(distance(x)/x) )/ ymax;
+		if (x == 0) {
+			y1 = 1;
+		}
+		else {
+			y1 = (fabs(distance(x) / x)) / ymax;
+		}
 
         if (x1 > 0.8)
             x1 = 0.8;
@@ -129,6 +134,7 @@ void Display3() {
     glEnd();
 }
 
+// melcul lui pascal
 void Display4() {
     double a = 0.3, b = 0.2;
     double xmax, ymax, xmin, ymin;
@@ -153,10 +159,48 @@ void Display4() {
     glEnd();
 }
 
+// trisectoarea lui longchamps
 void Display5() {
+	const auto ratio = 0.005;
+	const auto a = 0.2;
+	double ys[250], xs[250];
+	double pi = 4 * atan(1.0);
+	auto t = -pi / 2 + ratio;
+	auto n = 0;
 
+	glColor3f(0.0, 0.0, 0.0);
+	glBegin(GL_LINE_STRIP);
+	while (true) {
+
+		if (t >= -pi / 6) break;
+
+		const auto output_x = a / (4 * cos(t) * cos(t) - 3);
+		const auto output_y = (a * tan(t)) / (4 * cos(t) * cos(t) - 3);
+
+		xs[n] = output_x;
+		ys[n] = output_y;
+		n++;
+
+		t += ratio;
+
+		glVertex2f(output_x, output_y);
+	}
+	glEnd();
+
+	glColor3f(1, 0.1, 0.1);
+	glBegin(GL_TRIANGLES);
+	for (auto i = 1; i < n - 1; i += 3) {
+
+		if (i > n / 4 && i < 3 * n / 4) continue;
+
+		glVertex2f(-1.0, 1.0);
+		glVertex2f(xs[i], ys[i]);
+		glVertex2f(xs[i + 1], ys[i + 1]);
+	}
+	glEnd();
 }
 
+// cicloida
 void Display6() {
     double a = 0.1, b = 0.2;
     double xmax, ymax, xmin, ymin;
@@ -169,6 +213,7 @@ void Display6() {
     ymax = (fabs(ymax) > fabs(ymin)) ? fabs(ymax) : fabs(ymin);
     glColor3f(1, 0.1, 0.1); // rosu
     glBegin(GL_LINE_STRIP);
+	// am ales acest interval ca sa nu fie prea lunga (sa fie exact ca in imagine)
     for (t = -10; t < 10; t += ratia) {
         double x1, y1;
         x1 = (a * t - b * sin(t)) / xmax;
@@ -178,6 +223,8 @@ void Display6() {
     }
     glEnd();
 }
+
+//epicicloida
 void Display7(){
     double R = 0.1, r = 0.3;
     double pi = 4 * atan(1.0);
@@ -195,6 +242,7 @@ void Display7(){
     glEnd();
 }
 
+//hipocicloida
 void Display8() {
     double R = 0.1, r = 0.3;
     double pi = 4 * atan(1.0);
@@ -212,6 +260,8 @@ void Display8() {
     glEnd();
 
 }
+
+//lemniscata lui bernouli
 void Display9() {
     double a=0.4;
     double pi = 4 * atan(1.0);
@@ -251,9 +301,9 @@ void Display9() {
     glVertex2f(x2, y2);
     glVertex2f(x1, y1);
     glEnd();
-
-
 }
+
+//spirala logaritmica
 void Display10() {
     double a = 0.02;
     double ratia = 0.05;
@@ -265,7 +315,7 @@ void Display10() {
         r = a * exp(1 + t);
         x = r * cos(t);
         y = r * sin(t);
-        glVertex2f(x, y);
+		glVertex2f(x, y);
     }
     glEnd();
 }
