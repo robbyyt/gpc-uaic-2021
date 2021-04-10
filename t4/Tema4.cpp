@@ -36,26 +36,26 @@ bool comparatorS3(S3& i, S3& j) {
 void Init(void)
 {
 
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
 
-    glLineWidth(1);
+	glLineWidth(1);
 
-    glPointSize(3);
+	glPointSize(3);
 
-    glPolygonMode(GL_FRONT, GL_LINE);
+	glPolygonMode(GL_FRONT, GL_LINE);
 }
 
 void Reshape(int w, int h)
 {
-    glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 }
 
 void KeyboardFunc(unsigned char key, int x, int y)
 {
-    prevKey = key;
-    if (key == 27) // escape
-        exit(0);
-    glutPostRedisplay();
+	prevKey = key;
+	if (key == 27) // escape
+		exit(0);
+	glutPostRedisplay();
 }
 
 void MouseFunc(int button, int state, int x, int y)
@@ -65,118 +65,132 @@ void MouseFunc(int button, int state, int x, int y)
 class GrilaCarteziana
 {
 public:
-    int lines;
-    int columns;
-    double radius = 0.04;
-    int radius_c = 13;
-    double xmin, xmax, ymin, ymax;
+	int lines;
+	int columns;
+	double radius = 0.04;
+	int radius_c = 13;
+	double xmin, xmax, ymin, ymax;
 
 
-    GrilaCarteziana(int lines, int columns, double xmin, double ymin, double xmax, double ymax)
-    {
-        this->lines = lines;
-        this->columns = columns;
-        this->xmin = xmin;
-        this->xmax = xmax;
-        this->ymin = ymin;
-        this->ymax = ymax;
-        // determinam marimile celulelor in functie de marimea spatiului in care vrem sa randam grila si numarul de linii si coloane
-        cellWidth = double(xmax - xmin) / double(columns);
-        cellHeight = double(ymax - ymin) / double(lines);
-    }
+	GrilaCarteziana(int lines, int columns, double xmin, double ymin, double xmax, double ymax)
+	{
+		this->lines = lines;
+		this->columns = columns;
+		this->xmin = xmin;
+		this->xmax = xmax;
+		this->ymin = ymin;
+		this->ymax = ymax;
+		// determinam marimile celulelor in functie de marimea spatiului in care vrem sa randam grila si numarul de linii si coloane
+		cellWidth = double(xmax - xmin) / double(columns);
+		cellHeight = double(ymax - ymin) / double(lines);
+	}
 
-    void afiseazaGrila()
-    {
-        //desenam liniile
-        for (double i = ymin; i <= ymax; i += cellHeight)
-        {
-            glColor3f(0, 0, 0);
-            glBegin(GL_LINES);
-            glVertex2d(xmin, i);
-            glVertex2d(xmax, i);
-            glEnd();
-        }
+	void afiseazaGrila()
+	{
+		//desenam liniile
+		for (double i = ymin; i <= ymax; i += cellHeight)
+		{
+			glColor3f(0, 0, 0);
+			glBegin(GL_LINES);
+			glVertex2d(xmin, i);
+			glVertex2d(xmax, i);
+			glEnd();
+		}
 
-        // desenam coloanele
-        for (double j = xmin; j <= xmax; j += cellWidth)
-        {
-            glColor3f(0, 0, 0);
-            glBegin(GL_LINES);
-            glVertex2d(j, ymin);
-            glVertex2d(j, ymax);
-            glEnd();
-        }
-    }
-    // https://stackoverflow.com/questions/22444450/drawing-circle-with-opengl
-    void drawCircle(double cx, double cy, double radius, int circlePoints = 100)
-    {
-        glPolygonMode(GL_FRONT, GL_FILL);
-        glColor3f(0, 0, 0);
-        glBegin(GL_POLYGON);
-        const double PI = 3.1415926;
-        for (int i = 0; i < circlePoints; i++)
-        {
-            // current angle
-            double theta = (2.0 * PI * i) / double(circlePoints);
-            double x = radius * cos(theta);
-            double y = radius * sin(theta);
-            glVertex2d(x + cx, y + cy);
-        }
-        glEnd();
-    }
+		// desenam coloanele
+		for (double j = xmin; j <= xmax; j += cellWidth)
+		{
+			glColor3f(0, 0, 0);
+			glBegin(GL_LINES);
+			glVertex2d(j, ymin);
+			glVertex2d(j, ymax);
+			glEnd();
+		}
+	}
+	// https://stackoverflow.com/questions/22444450/drawing-circle-with-opengl
+	void drawCircle(double cx, double cy, double radius, int circlePoints = 100)
+	{
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glColor3f(0, 0, 0);
+		glBegin(GL_POLYGON);
+		const double PI = 3.1415926;
+		for (int i = 0; i < circlePoints; i++)
+		{
+			// current angle
+			double theta = (2.0 * PI * i) / double(circlePoints);
+			double x = radius * cos(theta);
+			double y = radius * sin(theta);
+			glVertex2d(x + cx, y + cy);
+		}
+		glEnd();
+	}
 
-    //o alta varianta de a desena un cerc doar ca asta vine gata colorat
-    void drawCircleMethod2(float r, float x, float y) {
-        float i = 0.0f;
-        glColor3f(0.184314, 0.309804, 0.309804);
-        glBegin(GL_TRIANGLE_FAN);
+	void DrawEllipse(float cx, float cy, float rx, float ry, int num_segments)
+	{
+		float theta = 2 * 3.1415926 / float(num_segments);
+		float c = cosf(theta);
+		float s = sinf(theta);
+		float t;
 
-        glVertex2f(x, y); // Center
-        for (i = 0.0f; i <= 360; i++)
-            glVertex2f(r * cos(M_PI * i / 180.0) + x, r * sin(M_PI * i / 180.0) + y);
+		float x = 1;
+		float y = 0;
 
-        glEnd();
-    }
+		glLineWidth(3);
+		glColor3f(1, 0.1, 0.1);
+		glBegin(GL_LINE_LOOP);
+		for (int ii = 0; ii < num_segments; ii++)
+		{
+			//apply radius and offset
+			glVertex2f(x * rx + cx, y * ry + cy);//output vertex 
 
-    vector<pair<int, int>>AfisarePuncteCerc3(int x, int y, vector<pair<int, int>>M) {
-        //pentru generarea pixelilor din cadranul I. Nu este nevoie de simetrie in acest caz deci este suficient sa adaugam in M doar punctele (y,x).
-        if (x != y) {
-            M.push_back({ (y),(x) });        
-        }
-        return M;
-    }
-    
-    void aprindePixel(int coord_x, int coord_y, int w) {
-        //se deschid 3 pixeli, pe linie de data, asta in functie de pixelul central aflat in M 
-        for (auto i = -w / 2; i <= w / 2; i++) {
-            drawCircle((xmin + (coord_x+i) * cellWidth), -1 + (coord_y) * cellHeight, this->radius);
-        }
-        
+			//apply the rotation matrix
+			t = x;
+			x = c * x - s * y;
+			y = s * t + c * y;
+		}
+		glEnd();
+		glLineWidth(1);
+	}
 
-    }
-	
-    void traseazaCerc(int width) {
-        glLineWidth(5); //ingroasa linia
-        glColor3f(1, 0.1, 0.1);
+	vector<pair<int, int>>AfisarePuncteCerc3(int x, int y, vector<pair<int, int>>M) {
+		//pentru generarea pixelilor din cadranul I. Nu este nevoie de simetrie in acest caz deci este suficient sa adaugam in M doar punctele (y,x).
+		if (x != y) {
+			M.push_back({ (y),(x) });
+		}
+		return M;
+	}
 
-        glBegin(GL_LINE_LOOP);
-        for (int i = 0; i < 100; i++)
-        {
-            float theta = 2.0f * 3.1415926f * float(i) / float(100);
-            float x = radius_c * cosf(theta) * cellHeight; //ajustam cercul in functie de inaltimea unei celule
-            float y = radius_c * sinf(theta) * cellWidth; // ajustam cercul in functie de lungimea unei celule
+	void aprindePixel(int coord_x, int coord_y, int w) {
+		//se deschid 3 pixeli, pe linie de data, asta in functie de pixelul central aflat in M 
+		for (auto i = -w / 2; i <= w / 2; i++) {
+			drawCircle((xmin + (coord_x + i) * cellWidth), -1 + (coord_y)*cellHeight, this->radius);
+		}
 
-            //plecam cu centrul cercului din coltul stanga jos
-            glVertex2f(x + (-1), y + (-1));
 
-        }
-        glEnd();
+	}
+
+	void traseazaCerc(int width) {
+		glLineWidth(5); //ingroasa linia
+		glColor3f(1, 0.1, 0.1);
+
+		glBegin(GL_LINE_LOOP);
+		for (int i = 0; i < 100; i++)
+		{
+			float theta = 2.0f * 3.1415926f * float(i) / float(100);
+			float x = radius_c * cosf(theta) * cellHeight; //ajustam cercul in functie de inaltimea unei celule
+			float y = radius_c * sinf(theta) * cellWidth; // ajustam cercul in functie de lungimea unei celule
+
+			//plecam cu centrul cercului din coltul stanga jos
+			glVertex2f(x + (-1), y + (-1));
+
+		}
+		glEnd();
 		glLineWidth(1);
 
-        for (auto& points : AfisareCerc4(this->radius_c)) {
-            aprindePixel(points.first, points.second, width);
-        }
-    }
+		for (auto& points : AfisareCerc4(this->radius_c)) {
+			aprindePixel(points.first, points.second, width);
+		}
+	}
 
 	vector<pair<int, int>> AfisareCerc4(int R) {
 		int x = 0, y = R;
@@ -207,6 +221,78 @@ public:
 		}
 		return M;
 	}
+
+	void adauga(vector<pair<int, int>>& ssm, int x, int y, int xi, int x0, int y0) {
+		x0 = xi + x0;
+		y = y + y0;
+		int xn = x + x0;
+		
+
+		for (int index = x0; index <= xn; index++) {
+			ssm.push_back({ index,y });
+		}
+		for (int index = xn; index <= x0; index++) {
+			ssm.push_back({ index,y });
+		}
+	}
+
+	vector<pair<int, int>> umplereEplipsa(int x0, int y0, int a, int b) {
+		int xi = 0, x = 0, y = -b;
+		double fxpyp = 0.0, deltaV, deltaNV, deltaN;
+		vector<pair<int, int>> ssm;
+		adauga(ssm, x, y, xi, x0, y0);
+		//regiunea 1
+		while (a * a * (y + 0.5) < b * b * (x - 1)) {
+			deltaV = b * b * (2 * x - 1);
+			deltaNV = b * b * (2 * x - 1) + a * a * (-2 * y - 1);
+			if (fxpyp - deltaV <= cellWidth) {
+				//V se afla in interiorul elipsei
+				fxpyp -= deltaV;
+				x--;
+				adauga(ssm, x, y, xi, x0, y0);
+			}
+			else if (fxpyp - deltaNV <= 0.0) {
+				//NV se afla in interiorul elipsei
+				fxpyp -= deltaNV;
+				x--;
+				y++;
+				adauga(ssm, x, y, xi, x0, y0);
+			}
+		}
+		//regiunea 2
+		while (y < 0) {
+			deltaNV = b * b * (2 * x - 1) + a * a * (-2 * y - 1);
+			deltaN = a * a * (-2 * y - 1);
+			if (fxpyp - deltaNV <= cellHeight) {
+				//NV se afla in interiorul elipsei
+				fxpyp -= deltaNV;
+				x--;
+				y++;
+			}
+			else {
+				//N este in interiorul elipsei
+				fxpyp -= deltaN;
+				y++;
+			}
+			adauga(ssm, x, y, xi, x0, y0);
+		}
+		return ssm;
+	}
+	void traseazaElipsa(int x0, int y0, int a, int b) {
+		DrawEllipse(0, -0.5, 1, 0.5, 100);
+		for (auto& points : umplereEplipsa(x0, y0, a, b)) {
+			aprindeElipsaPixeli(points.first, points.second);
+		}
+
+	}
+	void aprindeElipsaPixeli(int coord_x, int coord_y) {
+		drawCircle((xmin + (coord_x)*cellWidth), -1 + (coord_y)*cellHeight, 0.025);
+	}
+
+
+
+
+
 
 	void traseazaPoligon(vector<pair<int, int> > points) {
 		glLineWidth(2);
@@ -239,11 +325,11 @@ public:
 			if (current_et.empty()) {
 				continue;
 			}
-			for (int i = 0; i < current_et.size() - 1; i+= 2) {
+			for (int i = 0; i < current_et.size() - 1; i += 2) {
 				int x0 = ceil(current_et[i]);
 				int x1 = floor(current_et[i + 1]);
 				if (x1 == current_et[i + 1] && x1 > x0) {
-					x1-= 1;
+					x1 -= 1;
 				}
 
 				for (int j = min(x0, x1); j <= max(x0, x1); j++) {
@@ -266,7 +352,7 @@ public:
 
 
 	}
-	
+
 	vector<S2> construirePoligon(vector<pair<int, int> > points) {
 		vector<S2> P;
 		for (size_t i = 0; i < points.size() - 1; ++i)
@@ -291,7 +377,7 @@ public:
 			// vedem daca e posibil sa intersecteze muchia
 			if ((muchie.p0.second <= y && y <= muchie.p1.second) || (muchie.p0.second >= y && y >= muchie.p1.second)) {
 				double intersectie;
-				
+
 				if (muchie.p0.first == muchie.p1.first) {
 					intersectie = muchie.p0.first;
 				}
@@ -299,7 +385,7 @@ public:
 					intersectie = muchie.p0.first + (double)(y - muchie.p0.second) / (double)(muchie.p1.second - muchie.p0.second) * (double)(muchie.p1.first - muchie.p0.first);
 				}
 				// pusham doar puncte interioare
-				if (muchie.p1.second == y && intersectie == muchie.p1.first || 
+				if (muchie.p1.second == y && intersectie == muchie.p1.first ||
 					muchie.p0.second == y && intersectie == muchie.p0.first) {
 					if (y == min(muchie.p0.second, muchie.p1.second)) {
 						et.push_back(intersectie);
@@ -398,11 +484,11 @@ public:
 	//		cout << "-------------" << endl;
 	//	}
 	//}
-    
+
 
 private:
-    double cellWidth;
-    double cellHeight;
+	double cellWidth;
+	double cellHeight;
 };
 
 vector<pair<int, int> > readPolygonPointsFromFile() {
@@ -442,6 +528,11 @@ void Display2() {
 	vector<pair<int, int> > points = readPolygonPointsFromFile();
 	gc.traseazaPoligon(points);
 }
+void Display3() {
+	GrilaCarteziana gc = GrilaCarteziana(26, 26, -1.0, -1.0, 1.0, 1.0);
+	gc.afiseazaGrila();
+	gc.traseazaElipsa(13, 7, 13, 7);
+}
 
 // aici vom desena grila si liniile
 void Display()
@@ -458,35 +549,36 @@ void Display()
 		break;
 	case '2':
 		glClear(GL_COLOR_BUFFER_BIT);
+		Display3();
 		break;
 	}
 
-    glFlush();
+	glFlush();
 }
 
 int main(int argc, char** argv)
 {
-    glutInit(&argc, argv);
+	glutInit(&argc, argv);
 
-    glutInitWindowSize(dim, dim);
+	glutInitWindowSize(dim, dim);
 
-    glutInitWindowPosition(100, 100);
+	glutInitWindowPosition(100, 100);
 
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
-    glutCreateWindow(argv[0]);
+	glutCreateWindow(argv[0]);
 
-    Init();
+	Init();
 
-    glutReshapeFunc(Reshape);
+	glutReshapeFunc(Reshape);
 
-    glutKeyboardFunc(KeyboardFunc);
+	glutKeyboardFunc(KeyboardFunc);
 
-    glutMouseFunc(MouseFunc);
+	glutMouseFunc(MouseFunc);
 
-    glutDisplayFunc(Display);
+	glutDisplayFunc(Display);
 
-    glutMainLoop();
+	glutMainLoop();
 
-    return 0;
+	return 0;
 }
