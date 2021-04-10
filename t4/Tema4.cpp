@@ -210,10 +210,20 @@ public:
 
 	void traseazaPoligon(vector<pair<int, int> > points) {
 		glLineWidth(2);
+		glPolygonMode(GL_FRONT, GL_LINE);
 		glBegin(GL_POLYGON);
 		glColor3f(1, 0.1, 0.1);
+		int ym = columns + 1;
+		int yM = -1;
 		for (auto d : points)
 		{
+			if (d.second < ym) {
+				ym = d.second;
+			}
+
+			if (d.second > yM) {
+				yM = d.second;
+			}
 			float x = xmin + cellWidth * d.first;
 			float y = ymin + cellHeight * d.second;
 			glVertex2f(x, y);
@@ -222,10 +232,38 @@ public:
 		glLineWidth(1);
 
 		vector<S2> P = construirePoligon(points);
-		vector<vector<S3>> et, ssms;
-		initializareET(P, et);
-		calculssm(P, et, ssms);
-		colorarePoligon(ssms);
+
+		vector<pair<int, int>> to_draw;
+		for (int y = ym; y <= yM; y++) {
+			vector<double> current_et = initializareETv2(P, y, ym, yM);
+			if (current_et.empty()) {
+				continue;
+			}
+			for (int i = 0; i < current_et.size() - 1; i+= 2) {
+				int x0 = ceil(current_et[i]);
+				int x1 = floor(current_et[i + 1]);
+				if (x1 == current_et[i + 1] && x1 > x0) {
+					x1-= 1;
+				}
+
+				for (int j = min(x0, x1); j <= max(x0, x1); j++) {
+					pair<int, int> point;
+					point.first = j;
+					point.second = y;
+					to_draw.push_back(point);
+				}
+			}
+
+		}
+
+		for (auto p : to_draw) {
+			aprindePixel(p.first, p.second, 1);
+		}
+		//vector<vector<S3>> et, ssms;
+		//initializareET(P, et);
+		//calculssm(P, et, ssms);
+		//colorarePoligon(ssms);
+
 
 	}
 	
@@ -245,90 +283,121 @@ public:
 		return P;
 	}
 
-	void initializareET(vector<S2> P, vector<vector<S3>> &et) {
-		int xm, ym, xM, yM;
-
-		for (int i = 0; i <= DOM_SCAN; i++) {
-			vector<S3> v;
-			v.clear();
-			et.push_back(v);
-		}
-
-		for (auto m : P) {
-			ym = min(m.p0.second, m.p1.second);
-			yM = max(m.p0.second, m.p1.second);
-			xm = (ym == m.p0.second) ? m.p0.first : m.p1.first;
-			xM = (yM == m.p0.second) ? m.p0.first : m.p1.first;
-			S3 el;
-			el.ymax = yM;
-			el.xmin = xm;
-			el.ratia = ((double)(xm - xM)) / (ym - yM);
-			et[ym].push_back(el);
-		}
-
-		// Sortare
-		for(int i = 0; i <= DOM_SCAN; i++) {
-			if (et[i].size() > 0) {
-				sort(et[i].begin(), et[i].end(), comparatorS3);
-			}
-		}
-	}
-
-	void calculssm(vector<S2> P, vector<vector<S3>> &et, vector<vector<S3>> &finalET) {
-		int y, k;
-		vector<S3> activeSSM;
-		for (int i = 0; i <= DOM_SCAN; i++) {
-			vector<S3> v;
-			v.clear();
-			finalET.push_back(v);
-		}
-		
-		y = -1;
-
-		for (int i = 0; i <= DOM_SCAN; i++) {
-			if (!et[i].empty()) {
-				y = i;
-				break;
-			}
-		}
-
-		if (y == -1) {
-			return;
-		}
-		do {
-			activeSSM = et[y];
-			for (auto iter = activeSSM.begin(); iter != activeSSM.end(); ) {
-				if (iter->ymax == y) {
-					iter = activeSSM.erase(iter);
+	vector<double> initializareETv2(vector<S2> P, int y, int ym, int yM) {
+		// pentru o dreapta de scanare y pentru fiecare muchie din p vedem intersectiile
+		// ne intereseaza doar valorile x pentru ca y e setat.
+		vector<double> et;
+		for (auto muchie : P) {
+			// vedem daca e posibil sa intersecteze muchia
+			if ((muchie.p0.second <= y && y <= muchie.p1.second) || (muchie.p0.second >= y && y >= muchie.p1.second)) {
+				double intersectie;
+				
+				if (muchie.p0.first == muchie.p1.first) {
+					intersectie = muchie.p0.first;
 				}
 				else {
-					++iter;
+					intersectie = muchie.p0.first + (double)(y - muchie.p0.second) / (double)(muchie.p1.second - muchie.p0.second) * (double)(muchie.p1.first - muchie.p0.first);
+				}
+				// pusham doar puncte interioare
+				if (muchie.p1.second == y && intersectie == muchie.p1.first || 
+					muchie.p0.second == y && intersectie == muchie.p0.first) {
+					if (y == min(muchie.p0.second, muchie.p1.second)) {
+						et.push_back(intersectie);
+					}
+				}
+				else {
+					et.push_back(intersectie);
 				}
 			}
-
-			sort(activeSSM.begin(), activeSSM.end(), comparatorS3);
-
-			finalET[y] = activeSSM;
-			y++;
-
-			for (auto element : activeSSM) {
-				if (element.ratia != 0) {
-					element.xmin += element.ratia;
-				}
-			}
-
-
-		} while (!activeSSM.empty() || !et[y].empty());
-	}
-
-	void colorarePoligon(vector<vector<S3>> ssms) {
-		for (auto v : ssms) {
-			for (auto s3 : v) {
-				cout << s3.xmin << " " << s3.ymax<<endl;
-			}
-			cout << "-------------" << endl;
 		}
+		sort(et.begin(), et.end());
+		return et;
 	}
+
+	//void initializareET(vector<S2> P, vector<vector<S3>> &et) {
+	//	int xm, ym, xM, yM;
+
+	//	for (int i = 0; i <= DOM_SCAN; i++) {
+	//		vector<S3> v;
+	//		v.clear();
+	//		et.push_back(v);
+	//	}
+
+	//	for (auto m : P) {
+	//		ym = min(m.p0.second, m.p1.second);
+	//		yM = max(m.p0.second, m.p1.second);
+	//		xm = (ym == m.p0.second) ? m.p0.first : m.p1.first;
+	//		xM = (yM == m.p0.second) ? m.p0.first : m.p1.first;
+	//		S3 el;
+	//		el.ymax = yM;
+	//		el.xmin = xm;
+	//		el.ratia = ((double)(xm - xM)) / (double)(ym - yM);
+	//		et[ym].push_back(el);
+	//	}
+
+	//	// Sortare
+	//	for(int i = 0; i <= DOM_SCAN; i++) {
+	//		if (et[i].size() > 0) {
+	//			sort(et[i].begin(), et[i].end(), comparatorS3);
+	//		}
+	//	}
+	//}
+
+	//void calculssm(vector<S2> P, vector<vector<S3>> &et, vector<vector<S3>> &finalET) {
+	//	int y, k;
+	//	vector<S3> activeSSM;
+	//	for (int i = 0; i <= DOM_SCAN; i++) {
+	//		vector<S3> v;
+	//		v.clear();
+	//		finalET.push_back(v);
+	//	}
+	//	
+	//	y = -1;
+
+	//	for (int i = 0; i <= DOM_SCAN; i++) {
+	//		if (!et[i].empty()) {
+	//			y = i;
+	//			break;
+	//		}
+	//	}
+
+	//	if (y == -1) {
+	//		return;
+	//	}
+	//	do {
+	//		activeSSM.insert(activeSSM.end(), et[y].begin(), et[y].end());
+	//		for (auto iter = activeSSM.begin(); iter != activeSSM.end(); ) {
+	//			if (iter->ymax == y) {
+	//				iter = activeSSM.erase(iter);
+	//			}
+	//			else {
+	//				++iter;
+	//			}
+	//		}
+
+	//		sort(activeSSM.begin(), activeSSM.end(), comparatorS3);
+
+	//		finalET[y] = activeSSM;
+	//		y++;
+
+	//		for (auto element : activeSSM) {
+	//			if (element.ratia != 0) {
+	//				element.xmin += element.ratia;
+	//			}
+	//		}
+
+
+	//	} while (!activeSSM.empty() || !et[y].empty());
+	//}
+
+	//void colorarePoligon(vector<vector<S3>> ssms) {
+	//	for (auto v : ssms) {
+	//		for (auto s3 : v) {
+	//			cout << s3.xmin << " " << s3.ymax<<endl;
+	//		}
+	//		cout << "-------------" << endl;
+	//	}
+	//}
     
 
 private:
