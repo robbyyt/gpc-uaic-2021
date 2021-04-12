@@ -238,22 +238,22 @@ public:
 
 	vector<pair<int, int>> umplereEplipsa(int x0, int y0, int a, int b) {
 		int xi = 0, x = 0, y = -b;
-		double fxpyp = 0.0, deltaV, deltaNV, deltaN;
+		double fxpyp = 0.0, dV, dSV, dS;
 		vector<pair<int, int>> ssm;
 		adauga(ssm, x, y, xi, x0, y0);
 		//regiunea 1
 		while (a * a * (y + 0.5) < b * b * (x - 1)) {
-			deltaV = b * b * (2 * x - 1);
-			deltaNV = b * b * (2 * x - 1) + a * a * (-2 * y - 1);
-			if (fxpyp - deltaV <= cellWidth) {
+			dV = b * b * (2 * x - 1);
+			dSV = b * b * (2 * x - 1) + a * a * (-2 * y - 1);
+			if (fxpyp - dV <= cellWidth) {
 				//V se afla in interiorul elipsei
-				fxpyp -= deltaV;
+				fxpyp -= dV;
 				x--;
 				adauga(ssm, x, y, xi, x0, y0);
 			}
-			else if (fxpyp - deltaNV <= 0.0) {
-				//NV se afla in interiorul elipsei
-				fxpyp -= deltaNV;
+			else if (fxpyp - dSV <= 0.0) {
+				//SV se afla in interiorul elipsei
+				fxpyp -= dSV;
 				x--;
 				y++;
 				adauga(ssm, x, y, xi, x0, y0);
@@ -261,17 +261,17 @@ public:
 		}
 		//regiunea 2
 		while (y < 0) {
-			deltaNV = b * b * (2 * x - 1) + a * a * (-2 * y - 1);
-			deltaN = a * a * (-2 * y - 1);
-			if (fxpyp - deltaNV <= cellHeight) {
-				//NV se afla in interiorul elipsei
-				fxpyp -= deltaNV;
+			dSV = b * b * (2 * x - 1) + a * a * (-2 * y - 1);
+			dS = a * a * (-2 * y - 1);
+			if (fxpyp - dSV <= cellHeight) {
+				//SV se afla in interiorul elipsei
+				fxpyp -= dSV;
 				x--;
 				y++;
 			}
 			else {
-				//N este in interiorul elipsei
-				fxpyp -= deltaN;
+				//S este in interiorul elipsei
+				fxpyp -= dS;
 				y++;
 			}
 			adauga(ssm, x, y, xi, x0, y0);
